@@ -1,0 +1,279 @@
+\documentclass{article}
+\pagestyle{plain}
+\setlength\textwidth{266.0pt}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[paperwidth=185mm,paperheight=260mm,text={148mm,220mm},left=21mm,top=25.5mm]{geometry}
+\usepackage[round]{natbib}
+\usepackage{booktabs}
+\usepackage{algorithm,algpseudocode,amsmath}
+\usepackage[colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue]{hyperref}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{tikz}  
+\usepackage{pdflscape}
+ \newtheorem{thm}{Theorem}
+\newtheorem{pro}{Proposition}
+\newtheorem{lem}{Lemma}
+\newtheorem{alg}{Algorithm}
+\newtheorem{ass}{Assumption}
+\newtheorem{corr}{Corollary}
+\newtheorem{defin}{Definition}
+\newtheorem{ob}{Observation}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+%\newtheorem{proof}{Proof}
+\usetikzlibrary{arrows,shapes,chains}  
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm  
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm  
+\title {Review Notebook: Linear Programming}
+\author{CO2GENERATOR} 
+\begin {document}
+\maketitle 
+\allowdisplaybreaks[4]
+
+ 
+
+\section{Some Questions}
+
+In a maximization linear programming problem, 
+
+\begin{itemize}
+	\item why the rule that all $\sigma_j = c_j - z_j \leq 0$, can be used to determine whether the current basic feasible solution is optimal?
+	\item suppose that we already have the primal optimal solution, how to obtain the dual solution directly? 
+	\item if we newly add a constraint, how to operate a warm start rather than re-optimize? 
+\end{itemize}
+
+These questions have puzzled me for a long time.
+
+\newpage
+\section{Simplex Method}
+
+The simplex algorithm proceeds as follows:
+
+\begin{itemize}
+	\item \textbf{Step 1} Convert the LP to the standard form.
+	\item \textbf{Step 2} Obtain basic feasible solution(bfs) if possible from the standard form.
+	\item \textbf{Step 3} Determine whether the current bfs is optimal.
+	\item \textbf{Step 4} If the current bfs is not optimal, determine which nonbasic variable should become a basic variable and which basic variable should become a nonbasic variable to find a new bfs with a better objective function value.
+	\item \textbf{Step 5} Use EROS(elementary row operations) to find the new bfs with the better objective function value. Go back to \textbf{Step 3}.
+\end{itemize}
+
+\begin{example}
+	The following shows a simple case:
+	\begin{align}
+		&\max \quad  2x_1 + x_2 \\
+		& s.t. \left\{ \begin{aligned}
+		 \ & 5x_2 \leq 15 \\
+		& 6x_1 + 2x_2 \leq 24 \\
+		& x_1 + x_2 \leq 5 \\
+		& x_1, x_2 \geq 0
+		\end{aligned} \right.
+	\end{align}
+	The simplex tableau has been shown as below:
+	\begin{table}[htbp]
+		\centering
+		\label{tab:simpelx}
+		\begin{tabular}{@{}ccccccccc@{}}
+			\toprule
+			\multicolumn{3}{c}{$c_j$}      & 2       & 1    & 0    & 0    & 0     & \multirow{2}{*}{$\theta$} \\ \cmidrule(r){1-8}
+			$c_B$     & $x_B$     & $b$       & $x_1$    & $x_2$ & $x_3$ & $x_4$ & $x_5$  &                        \\ \midrule
+			0        & $x_3$     & 15      & 0       & 5    & 1    & 0    & 0     & -                      \\
+			0        & $x_4$     & 24      & [6] & 2    & 0    & 1    & 0     & 4                      \\
+			0        & $x_5$     & 5       & 1       & 1    & 0    & 0    & 1     & 5                      \\ \midrule
+			\multicolumn{3}{c}{$c_j-z_j$} & 2       & 1    & 0    & 0    & 0     &                        \\ \midrule
+			0        & $x_3$     & 15      & 0       & 5    & 1    & 0    & 0     & -                      \\
+			2        & $x_1$     & 4       & 1       & 1/3  & 0    & 1/6  & 0     & 4                      \\
+			0        & $x_5$     & 1       & 0       & [2/3]  & 0    & -1/6 & 1     & 3/2                    \\ \midrule
+			\multicolumn{3}{c}{$c_j-z_j$} & 0       & 1/3  & 0    & -1/3 & 0     &                        \\ \midrule
+			0        & $x_3$     & 15/2    & 0       & 0    & 1    & 5/4  & -15/2 &                        \\
+			2        & $x_1$     & 7/2     & 1       & 0    & 0    & 1/4  & -1/2  &                        \\
+			1        & $x_2$     & 3/2     & 0       & 1    & 0    & -1/4 & 3/2   &                        \\ \midrule
+			\multicolumn{3}{c}{$c_j-z_j$} & 0       & 0    & 0    & -1/4 & -1/2  &                        \\ \bottomrule
+		\end{tabular}%
+	\end{table}
+\end{example}
+
+When a starting bfs is not readily apparent, the Big-M method or the Two-phase simplex method may be used to solve the problem.
+\begin{itemize}
+	\item \textbf{Big-M Method}: we can introduce some artificial variables to construct starting bfs. Since in the final solution, the value of these arbitrary variables must be $0$, a very large number $M$ is introduced as the coefficient of these variables in the objective function. 
+	\item \textbf{Two-phase Simplex Method}: because of the difficulty on numerical computation, Big-M method is not suitable for programming. We add artificial variables to the same constraints as we did in the Big-M method. And construct the Phase I LP, in which the objective is to minimize the sum of all artificial variables. At the completion of Phase I, if the optimal objective is not $0$, it confirmedly demonstrates that the original LP is infeasible.(Maybe in CPLEX/Gurobi, the same process is employed to detect the feasibility.) Otherwise, the optimal solution is $0$, then introduce the original LP's objective function to continue the simplex process.   
+\end{itemize}
+
+\subsection{The Optimality Condition}
+
+In the process of simplex algorithm, we use the $\sigma_j = c_j - z_j$ to find entering variable. For a maximization problem, if $\forall j, \sigma_j <0$, we obtain the optimal solution. Why it is true? 
+
+\begin{proof}
+	For a standard maximization LP,
+	\begin{align}
+		& \max \quad \sum_{j=1}^{n} c_jx_j \\
+		& s.t. \quad \left\{
+		\begin{aligned}
+			& \sum_{j=1}^{n} P_j x_j = b \\
+			& x_j \geq 0, (j = 1, ..., n)
+		\end{aligned} \right.
+	\end{align}
+	Suppose we have got a basic feasible solution,
+	\begin{equation}
+		X^{(0)} = (x_1^{(0)}, ..., x_m^{(0)}, 0, ..., 0)^T
+	\end{equation}
+	Then, we have
+	\begin{equation}
+		\sum_{i=1}^m P_i x_i^{(0)} = b \label{eq1}
+	\end{equation}
+	And $P_1, ..., P_m$ is a basis. So, for the other vector $P_j$, they can be represented as the following linear convex combination:
+	\begin{equation}
+		P_j  = \sum_{i=1}^{m} a_{ij}P_i
+	\end{equation}  
+	We can introduce a positive number $\theta$ (in fact, this is the step length), then
+	\begin{equation}
+		\theta(P_j - \sum_{i=1}^{m}a_{ij}P_i) = 0 \label{eq2}
+	\end{equation}
+	And (\ref{eq1}) + (\ref{eq2}), we have
+	\begin{align}
+		\sum_{i=1}^{m} P_i x_i^{(0)} + \theta(P_j - \sum_{i=1}^{m} a_{ij}P_i) = b \\
+		\sum_{i=1}^{m}(x_i^{(0)} - \theta a_{ij}) P_i + \theta P_j = b
+	\end{align}
+	Thus, for the constraints equation system,
+	\begin{equation}
+		\sum_{j=1}^{n} P_j x_j = b
+	\end{equation} 
+	We have got a feasible solution,
+	\begin{equation}
+		X^{(1)} = (x_1^{(0)} - \theta a_{1j}, ..., x_m^{(0)} - \theta a_{mj}, 0, ..., \theta, ..., 0)
+	\end{equation}	
+	And clearly, it is a basic feasible solution. Thus, 
+	\begin{equation}
+		z^{(0)} = \sum_{i=1}^{m} c_i x_i^{(0)}
+	\end{equation}
+	\begin{align}
+		z^{(1)} & = \sum_{i=1}^{m} c_i (x_i^{(0)} - \theta a_{ij}) + \theta c_j \\
+		& = \sum_{i=1}^{m} c_ix_i^{(0)} + \theta (c_j - \sum_{i=1}^{m}c_i a_{ij})
+	\end{align}
+	Let,
+	\begin{equation}
+		\sigma_j = c_j - \sum_{i=1}^{m} c_i a_{ij}
+	\end{equation}
+	in which $c_j$ is the \textit{cost} in the objective function. So, $\sigma_j$ is often referred as \textit{reduced cost}. And if $\forall j, \sigma_j \leq 0$, then $z^{(1)} \leq z^{(0)}$, $z^{(0)}$ is the optimal solution. And if there exists nonbasic variables $x_j$ of which the reduced cost $\sigma_j = 0$, then this LP has infinite number of optimal solution. And if there exists $\sigma_j > 0$ and $P_j \leq 0$, then $x_i^{(0)} - \theta a_{ij}$ can be infinitely large, this LP is unbounded.
+\end{proof}
+
+
+\subsection{Matrix Description}
+
+The following shows a maximization LP problem,
+\begin{align}
+& \max \quad z = \bm{c}^T\bm{x} \label{LP-obj} \\
+& s.t. \quad \left\{ 
+\begin{aligned}
+& \bm{A}\bm{x} \leq \bm{b} \\
+& \bm{x} \geq 0
+\end{aligned} \right. \label{LP-cons}
+\end{align}
+It can be convert to the standard form as,
+\begin{align}
+	& \max \quad z = \bm{c}_B^T\bm{x}_B + \bm{c}_N^T \bm{x}_N + 0 \bm{x}_s \\
+	& s.t. \quad \left\{ 
+	\begin{aligned}
+		& \bm{B}\bm{x}_B + \bm{N} \bm{x}_N + \bm{I}\bm{x}_s = \bm{b} \\
+		& \bm{x}_B, \bm{x}_N, \bm{x}_s \geq 0
+	\end{aligned} \right.
+\end{align}
+where $\bm{x}_B$ are the basic variables, $\bm{x}_N$ are the nonbasic variables and $\bm{x}_s$ are the slack variables. And the iterated simplex tableau is,
+
+\begin{table}[htbp]
+	\centering
+	\begin{tabular}{@{}cccccc@{}}
+		\toprule
+		\multicolumn{3}{c}{Content} & $\bm{x}_B$ & $\bm{x}_N$      & $\bm{x}_s$  \\ \midrule
+		$\bm{c}_B$      & $\bm{x}_B$      & $\bm{B}^{-1}\bm{b}$      & $I$  & $\bm{B}^{-1}\bm{N}$      & $\bm{B}^{-1}$   \\ \midrule
+		\multicolumn{3}{c}{$c_j-z_j$}     & 0  & $\bm{c}^T_N-\bm{c}^T_B\bm{B}^{-1}N$ & $-\bm{c}^T_BB^{-1}$ \\ \bottomrule
+	\end{tabular}%
+\end{table}
+
+If the $\bm{B}$ is the optimal basis, 
+\begin{equation}
+	\bm{c}^T_N - \bm{c}^T_B\bm{B}^{-1}\bm{N} \leq 0
+\end{equation} 
+\begin{equation}
+	-\bm{c}^T_B\bm{B}^{-1} \leq 0
+\end{equation}
+
+And we have, 
+\begin{equation}
+	\bm{c}^T_B - \bm{c}^T_B\bm{I} = 0 
+\end{equation}
+
+Thus, 
+\begin{equation}
+	\bm{c}^T - \bm{c}^T_B\bm{B}^{-1}\bm{A} \leq 0
+\end{equation}
+\begin{equation}
+	-\bm{c}^T_B \bm{B}^{-1} \leq 0
+\end{equation}
+
+Let $\bm{Y}^T = \bm{c}^T_B\bm{B}^{-1}$, then
+\begin{align}
+ 	\begin{aligned}
+ 		\bm{c}^T - \bm{Y}^T\bm{A} \leq 0 \\
+ 		-\bm{Y}^T \leq 0
+ 	\end{aligned}
+\end{align}
+
+Let us take look at the dual problem of (\ref{LP-obj})-(\ref{LP-cons}) is,
+\begin{align}
+	& \min \quad w = \bm{b}^T\bm{y} \\
+	& s.t. \quad \left\{
+	\begin{aligned}
+		& \bm{A}^T\bm{y} \geq \bm{c} \\
+		& \bm{y} \geq 0
+	\end{aligned} \right.
+\end{align}
+
+It can be find that $\bm{Y}$ is the feasible solution of such dual problem. And,
+\begin{equation}
+	w = \bm{b}^T\bm{y} = \bm{c}_B^T\bm{B}^{-1}\bm{b} = z
+\end{equation}
+
+So, is $\bm{Y}$ the optimal solution to dual problem?
+
+\begin{proof}
+	Let $\hat{\bm{x}} = (x_1, ..., x_n)^T$ be a feasible solution to primal problem, $\hat{\bm{y}} = (y_1, ..., y_m)^T$ be a feasible solution to dual problem. And,
+	\begin{equation}
+		\bm{c}^T \hat{\bm{x}}  = \bm{b}^T \hat{\bm{y}}
+	\end{equation}
+	So, assume $\bm{x}^* = (x_1, ..., x_n)^T$ is the optimal solution to primal problem, $\bm{y}^* = (x_1, ..., x_m)^T$ is the optimal solution to dual problem. Then, we have:
+	\begin{equation}
+		\bm{c}^T\hat{\bm{x}} \leq \bm{c}^T \bm{x}^*, \bm{b}^T \bm{y}^* \leq \bm{b}^T \hat{\bm{y}}
+	\end{equation}
+	And, 
+	\begin{equation}
+		\bm{c}^T\hat{\bm{x}} = \bm{b}^T\hat{\bm{y}}, \bm{c}^T\bm{x}^* \leq \bm{b}^T \bm{y}^*
+	\end{equation}
+	Thus,
+	\begin{equation}
+			\bm{c}^T\hat{\bm{x}} = \bm{c}^T \bm{x}^* = \bm{b}^T \bm{y}^* = \bm{b}^T \hat{\bm{y}}
+	\end{equation}
+	Therefore, $\bm{Y}$ is the optimal solution of dual problem.
+\end{proof}
+
+The dual problem solution can be obtained directly through the optimal tableau. It's awesome!
+
+
+ \section{Dual Simplex Method}
+
+
+
+% \newpage
+% \bibliographystyle{chicago}
+% \bibliography{reference}
+\end {document} 
