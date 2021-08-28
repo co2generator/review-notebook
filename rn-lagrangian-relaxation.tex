@@ -1,0 +1,132 @@
+\documentclass{article}
+\pagestyle{plain}
+\setlength\textwidth{266.0pt}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[paperwidth=185mm,paperheight=260mm,text={148mm,220mm},left=21mm,top=25.5mm]{geometry}
+\usepackage[round]{natbib}
+\usepackage{booktabs}
+\usepackage{algorithm,algpseudocode,amsmath}
+\usepackage[colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue]{hyperref}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{tikz}  
+\usepackage{pdflscape}
+ \newtheorem{thm}{Theorem}
+\newtheorem{pro}{Proposition}
+\newtheorem{lem}{Lemma}
+\newtheorem{alg}{Algorithm}
+\newtheorem{ass}{Assumption}
+\newtheorem{corr}{Corollary}
+\newtheorem{defin}{Definition}
+\newtheorem{ob}{Observation}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+%\newtheorem{proof}{Proof}
+\usetikzlibrary{arrows,shapes,chains}  
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm  
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm  
+\title {Review Notebook: Lagrangian Relaxation}
+\author{CO2GENERATOR} 
+\begin {document}
+\maketitle 
+\allowdisplaybreaks[4]
+
+\section{Lagrangian Relaxation}
+ 
+Consider the following linear integer programming problem(ILP),
+\begin{align}
+	(\textit{ILP}) \min \quad & \bm{c}^T\bm{x} \\
+	s.t. \quad & \left\{\begin{aligned}
+	& \bm{A}\bm{x} \leq \bm{b} \\
+	& \bm{D}\bm{x} \leq \bm{d} \\
+	& \bm{x} \in \mathbb{Z}^n
+	\end{aligned} \right.
+\end{align}
+in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm{x} \in \mathbb{R}^n \ | \ \bm{A}\bm{x} \leq \bm{b}\right\}$, $Conv(\bm{X}) = \left\{\bm{x} \in \mathbb{Z}^n \ | \ \bm{A}\bm{x} \leq \bm{b}\right\}$, and $\bm{u} = (u_1, ..., u_m)^T \in \mathbb{R}_+^m$, then the following problem
+\begin{equation}
+	\mathcal{L}(\bm{u})  =  \min_{\bm{x} \in \bm{X}} \quad \bm{c}^T\bm{x} + \bm{u}^T(\bm{D}\bm{x} - \bm{d}) 
+\end{equation}
+ is defined as \textit{Lagrangian relaxation}, $\bm{u}$ is so called the \textit{Lagrangian multipliers}. And 
+ \begin{equation}
+ 	(\textit{LD}) \max_{\bm{u} \in \mathbb{R}_+^m} \mathcal{L}(\bm{u})
+ \end{equation}
+ is the \textit{Lagrangian Dual Problem}.
+ 
+ \begin{thm} 
+ 	(Weak Duality) The following equation holds,
+ 	\begin{equation}
+ 		v(LD) \leq v(ILP)
+ 	\end{equation}
+ \end{thm}
+
+\begin{proof}
+	For any $\bm{u} \in \mathbb{R}_+^m$ and $\bm{x} \in \bm{X}$ that $\bm{Dx} \leq \bm{d}$, we have
+	\begin{equation}
+		\bm{c}^T \bm{x} + \bm{u}^T (\bm{Dx} - \bm{d}) \leq \bm{c}^T\bm{x}
+	\end{equation}
+	Therefore,
+	\begin{equation}
+		v(LD) = \max_{\bm{u} \in \mathbb{R}_+^m} \mathcal{L}(\bm{u}) \leq \min \left\{\bm{c}^T\bm{x} \ | \ \bm{D}\bm{x} \leq \bm{d}, \bm{x} \in \bm{X}\right\} = v(ILP)
+	\end{equation}
+\end{proof}
+
+\begin{thm}
+	(Strong Duality) Let $\bm{u}^* \in \mathbb{R}_+^m$, if the following conditions holds,
+	\begin{enumerate}
+		\item $\bm{x}^* \in \bm{X}$ is the optimal solution of problem \textit{LD}.
+		\item $\bm{x}^*$ is the feasible solution of problem \textit{ILP}.
+		\item the complementary slackness conditions holds, i.e. $\bm{u}^{*T}(\bm{D}\bm{x}^* - \bm{d}) = 0$.
+	\end{enumerate} 
+	then $\bm{x}^*$ is the optimal solution to \textit{ILP} and $v(ILP) = v(LD)$.
+\end{thm}
+
+\begin{proof}
+	With condition 1 and 3, we have 
+	\begin{equation}
+		v(LD) \geq \mathcal{L}(\bm{u}^*) = \bm{c}^T\bm{x}^* + \bm{u}^{*T}(\bm{D}\bm{x}^*-\bm{d}) = \bm{c}^T\bm{x}^*
+	\end{equation}
+	And with condition 2, 
+	\begin{equation}
+		\bm{c}^T\bm{x}^* \geq v(ILP)
+	\end{equation}
+	Then, we have that
+	\begin{equation}
+		v(LD) \geq \bm{c}^T\bm{x}^* \geq v(ILP)
+	\end{equation}
+	And we have already known the \textit{Weak Duality} holds,
+	\begin{equation}
+		v(ILP) \geq v(LD)
+	\end{equation}
+	Therefore,
+	\begin{equation}
+		v(ILP) = v(LD)
+	\end{equation}
+	and $\bm{x}^*$ is the optimal solution to problem \textit{ILP}.
+\end{proof}
+
+
+\section{Continuous Relaxation and Dual Relaxation}
+ 
+ 
+\section{Dual Search} 
+
+\subsection{Sub-gradient Search}
+ 
+\subsection{Out-approximation Approach}
+
+\subsection{Bundle Method}
+ 
+% \newpage
+% \bibliographystyle{chicago}
+% \bibliography{reference}
+\end {document} 
