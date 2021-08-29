@@ -26,7 +26,7 @@
 \newtheorem{lem}{Lemma}
 \newtheorem{alg}{Algorithm}
 \newtheorem{ass}{Assumption}
-\newtheorem{corr}{Corollary}
+\newtheorem{coro}{Corollary}
 \newtheorem{defin}{Definition}
 \newtheorem{ob}{Observation}
 \newtheorem{example}{Example}
@@ -54,11 +54,11 @@ Consider the following linear integer programming problem(ILP),
 \end{align}
 in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm{x} \in \mathbb{R}^n \ | \ \bm{A}\bm{x} \leq \bm{b}\right\}$, $Conv(\bm{X}) = \left\{\bm{x} \in \mathbb{Z}^n \ | \ \bm{A}\bm{x} \leq \bm{b}\right\}$, and $\bm{u} = (u_1, ..., u_m)^T \in \mathbb{R}_+^m$, then the following problem
 \begin{equation}
-	\mathcal{L}(\bm{u})  =  \min_{\bm{x} \in \bm{X}} \quad \bm{c}^T\bm{x} + \bm{u}^T(\bm{D}\bm{x} - \bm{d}) 
+	 d(\bm{u}) = \min_{\bm{x} \in \bm{X}} \quad \mathcal{L}(\bm{x}, \bm{u}) := \bm{c}^T\bm{x} + \bm{u}^T(\bm{D}\bm{x} - \bm{d}) 
 \end{equation}
  is defined as \textit{Lagrangian relaxation}, $\bm{u}$ is so called the \textit{Lagrangian multipliers}. And 
  \begin{equation}
- 	(\textit{LD}) \max_{\bm{u} \in \mathbb{R}_+^m} \mathcal{L}(\bm{u})
+ 	(\textit{LD}) \max_{\bm{u} \in \mathbb{R}_+^m}d(\bm{u})
  \end{equation}
  is the \textit{Lagrangian Dual Problem}.
  
@@ -76,7 +76,7 @@ in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm
 	\end{equation}
 	Therefore,
 	\begin{equation}
-		v(LD) = \max_{\bm{u} \in \mathbb{R}_+^m} \mathcal{L}(\bm{u}) \leq \min \left\{\bm{c}^T\bm{x} \ | \ \bm{D}\bm{x} \leq \bm{d}, \bm{x} \in \bm{X}\right\} = v(ILP)
+		v(LD) = \max_{\bm{u} \in \mathbb{R}_+^m} d(\bm{u}) \leq \min \left\{\bm{c}^T\bm{x} \ | \ \bm{D}\bm{x} \leq \bm{d}, \bm{x} \in \bm{X}\right\} = v(ILP)
 	\end{equation}
 \end{proof}
 
@@ -93,7 +93,7 @@ in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm
 \begin{proof}
 	With condition 1 and 3, we have 
 	\begin{equation}
-		v(LD) \geq \mathcal{L}(\bm{u}^*) = \bm{c}^T\bm{x}^* + \bm{u}^{*T}(\bm{D}\bm{x}^*-\bm{d}) = \bm{c}^T\bm{x}^*
+		v(LD) \geq d(\bm{u}^*) = \bm{c}^T\bm{x}^* + \bm{u}^{*T}(\bm{D}\bm{x}^*-\bm{d}) = \bm{c}^T\bm{x}^*
 	\end{equation}
 	And with condition 2, 
 	\begin{equation}
@@ -117,6 +117,107 @@ in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm
 
 \section{Continuous Relaxation and Dual Relaxation}
  
+ Consider the following general integer programming problem,
+ \begin{align}
+ 	(\textit{IP}) \min \quad & f(\bm{x}) \\
+	s.t. \quad & \left\{ 
+	\begin{aligned}
+	& g(\bm{x}) \leq \bm{b} \\
+	& \bm{x} \in \bm{X} 
+	\end{aligned} \right.
+ \end{align} 
+ where $\bm{X}$ is a finitely integers set and $\bm{b}$ is $m \times 1$ column vector. Then, the Lagrangian dual problem of \textit{IP} is,
+ \begin{align}
+ 	(DIP) \max_{\bm{\lambda} \in \mathbb{R}_+^m} \min_{\bm{x} \in \bm{X}} f(\bm{x}) + \bm{\lambda}^T(g(\bm{x}) - \bm{b})
+ \end{align}
+ where $\bm{\lambda}$ is the Lagrangian multipliers. And the continuous relaxation of problem \textit{IP} is,
+ \begin{align}
+  	(\textit{CIP}) \min \quad & f(\bm{x}) \\
+	 s.t. \quad & \left\{ 
+	 \begin{aligned}
+	 & g(\bm{x}) \leq \bm{b} \\
+	 & \bm{x} \in Conv(\bm{X}) 
+	 \end{aligned} \right.
+ \end{align}
+ where $Conv(\bm{X})$ is the convex hull of $\bm{X}$.
+
+\begin{thm}
+	The lower bound obtained by Lagrangian dual problem can always be better than continuous relaxation problem, i.e.
+	\begin{equation} 
+		v(DIP) \geq v(CIP)
+	\end{equation}
+\end{thm}
+
+\begin{proof}
+	Since $\bm{X} \subseteq Conv(\bm{X})$ and the strong duality theorem holds for convex optimization problems,
+	\begin{align}
+		v(DIP) & = \max_{\bm{\lambda} \in \mathbb{R}_+^m} \min_{\bm{x} \in \bm{X}} \mathcal{L}(\bm{x}, \bm{\lambda}) \\
+		& \geq \max_{\bm{\lambda} \in \mathbb{R}_+^m} \min_{\bm{x} \in Conv(\bm{X})} \mathcal{L}(\bm{x}, \bm{\lambda}) \\
+		& = v(CIP)
+	\end{align}
+	Therefore, $v(DIP) \geq v(CIP)$.
+\end{proof}
+
+In particular, for linear integer programming(ILP),
+\begin{align}
+	\textit{(ILP)} \min \quad & \bm{c}^T\bm{x} \\
+	 s.t. \quad & \left\{ 
+	\begin{aligned}
+	& \bm{D}\bm{x} \leq \bm{d} \\
+	& \bm{x} \in \bm{X}
+	\end{aligned} \right.
+\end{align}
+one of the continuous relaxation can be,
+\begin{align}
+	\textit{(CILP)} \min \quad & \bm{c}^T\bm{x} \\
+	s.t. \quad & \left\{ 
+	\begin{aligned}
+	& \bm{D}\bm{x} \leq \bm{d} \\
+	& \bm{x} \in Conv(\bm{X})
+	\end{aligned} \right.
+\end{align}
+
+\begin{thm}
+	For linear integer programming, the lower bound obtained by Lagrangian dual problem is the same as continuous relaxation, i.e.
+	\begin{equation}
+		v(DILP) = v(CILP)
+	\end{equation}
+\end{thm}
+\begin{proof}
+	Assume $\bm{X} = \left\{\bm{x}^1, ..., \bm{x}^N\right\}$, then we have that
+	\begin{align}
+		v(DILP) &= \max_{\bm{\lambda} \geq 0} d(\lambda) \\
+		&= \max_{\bm{\lambda} \geq 0} \min_{\bm{x} \in \bm{X}} \bm{c}^T\bm{x} + \bm{\lambda}^T(\bm{Dx} - \bm{d}) \\
+		&= \max_{\bm{\lambda} \geq 0} \min_{i = 1 , ... , N} \bm{c}^T\bm{x}^i + \bm{\lambda}^T(\bm{D}\bm{x}^i - \bm{d}) \\
+		& = \max \quad \eta \\
+		& \quad \ \begin{aligned}
+		s.t. \quad& \bm{c}^T\bm{x}^i + \bm{\lambda}^T(\bm{D}\bm{x}^i - \bm{d}) \geq \eta , i = 1, ..., N\\
+		& \bm{\lambda} \geq 0, \eta \in \mathbb{R}
+		\end{aligned} 
+	\end{align}
+	As we can see, problem (29)-(30) is a linear programming problem which has enormous number of constraints. And its dual problem is,
+	\begin{align}
+	\min \quad & \sum_{i=1}^{N}\mu_i \bm{c}^T\bm{x}^i \\
+	s.t. \quad & \sum_{i=1}^{N}\mu_i(\bm{D}\bm{x}^i - \bm{d}) \leq 0 \\
+	& \sum_{i=1}^{N}\mu_i = 1, \mu_i \geq 0
+	\end{align}
+	Let $\bm{x}^\prime = \sum_{i=1}^{N} \mu_i \bm{x}^i$, since $\sum_{i=1}^{N} \mu_i = 1, \mu_i \geq 0$, so $\bm{x}^\prime$ is the convex combination of $\bm{x}^i, i =1, ..., N$. And problem (32)-(34) is equivalent to the following problem,
+	\begin{equation}
+		\min \left\{\bm{c}^T\bm{x}^\prime \ | \ \bm{D}\bm{x} \leq \bm{d}, \bm{x}^\prime \in Conv(\bm{X})\right\}
+	\end{equation}
+	And it definitely is problem \textit{CILP}. Since the strong duality holds for linear programming, it can be easily find that $v(DILP) = v(CILP)$.
+\end{proof}
+
+\begin{coro}
+	Assume $\bm{X} = \left\{\bm{x} \in \mathbb{Z}^n \ | \ \bm{Ax} \leq \bm{b} \right\}$ and $\bar{\bm{X}} = \left\{ \bm{x} \in \mathbb{R}^n \ | \ \bm{Ax} \leq \bm{b} \right\}$. It can be easily find that for problem \textit{ILP}, its linear programming relaxation,
+	\begin{align}
+		(\textit{LP})\min \left\{\bm{c}^T\bm{x} \ | \ \bm{Dx} \leq \bm{d}, \bm{x} \in \bar{\bm{X}}\right\}
+	\end{align}
+	the following inequality holds,
+	\begin{equation}
+		v(DILP) = v(CIP) \geq v(LP)
+	\end{equation}
+\end{coro}
  
 \section{Dual Search} 
 
