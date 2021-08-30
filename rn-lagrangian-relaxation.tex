@@ -99,7 +99,7 @@ in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm
 	\begin{equation}
 		\bm{c}^T\bm{x}^* \geq v(ILP)
 	\end{equation}
-	Then, we have that
+	So,
 	\begin{equation}
 		v(LD) \geq \bm{c}^T\bm{x}^* \geq v(ILP)
 	\end{equation}
@@ -126,11 +126,40 @@ in which $\bm{D} \bm{x} \leq \bm{d}$ is $m$ constraints. Let $\bm{X}= \left\{\bm
 	& \bm{x} \in \bm{X} 
 	\end{aligned} \right.
  \end{align} 
- where $\bm{X}$ is a finitely integers set and $\bm{b}$ is $m \times 1$ column vector. Then, the Lagrangian dual problem of \textit{IP} is,
+ where $\bm{X}$ is a finitely integers set and $\bm{b}$ is $m \times 1$ column vector. By introducing the Lagrangian multipliers $\bm{\lambda} \in \mathbb{R}_+^m$, the Lagrangian function can be constructed as, 
  \begin{align}
- 	(DIP) \max_{\bm{\lambda} \in \mathbb{R}_+^m} \min_{\bm{x} \in \bm{X}} f(\bm{x}) + \bm{\lambda}^T(g(\bm{x}) - \bm{b})
+ \mathcal{L}(\bm{x}, \bm{\lambda}) = f(\bm{x}) + \bm{\lambda}^T(g(\bm{x}) - \bm{b})
  \end{align}
- where $\bm{\lambda}$ is the Lagrangian multipliers. And the continuous relaxation of problem \textit{IP} is,
+ And name the following $d(\bm{\lambda})$ as dual function,
+ \begin{equation}
+ d(\bm{\lambda}) = \min_{\bm{x} \in \bm{X}} 	\mathcal{L}(\bm{x}, \bm{\lambda})
+ \end{equation}
+The Lagrangian dual problem of problem \textit{IP} is
+ \begin{align}
+	(DIP) \max_{\bm{\lambda} \in \mathbb{R}_+^m} \min_{\bm{x} \in \bm{X}} f(\bm{x}) + \bm{\lambda}^T(g(\bm{x}) - \bm{b})
+ \end{align}
+ 
+ \begin{thm}
+ 	The dual function $d(\bm{\lambda})$ is a piecewise linear concave function on $\mathbb{R}_+^m$.
+ \end{thm}
+ 
+ \begin{proof}
+ 	For any $\bm{\lambda} \in \mathbb{R}_+^n$,
+ 	\begin{align}
+ 	d(\bm{\lambda}) = \min_{\bm{x} \in \bm{X}} f(\bm{x}) + \bm{\lambda}^T(g(\bm{x}) - \bm{b}) 
+ 	\end{align}
+ 	Since $\bm{X}$ is a finitely integers set, assume $\bm{X} = \left\{\bm{x}^i, i = 1, ..., N\right\}$, then
+ 	\begin{align}
+ 	d(\bm{\lambda}) = \min \left\{f(\bm{x}^i) + \bm{\lambda}^T(g(\bm{x}^i) - \bm{b}), i = 1, ..., N \right\}
+ 	\end{align}
+ 	It is the minimum of the finite number of linear functions of $\lambda$. Therefore, $d(\bm{\lambda})$ is a piecewise linear concave function.
+ \end{proof}
+ 
+\begin{remark}
+	This theorem provides a good property for solving some problems which has special structure. For an instance, the problem is separable, then we can efficiently solve the Lagrangian relaxation problem. 
+\end{remark} 
+ 
+ The continuous relaxation of problem \textit{IP} is,
  \begin{align}
   	(\textit{CIP}) \min \quad & f(\bm{x}) \\
 	 s.t. \quad & \left\{ 
@@ -221,12 +250,24 @@ one of the continuous relaxation can be,
  
 \section{Dual Search} 
 
-\subsection{Sub-gradient Search}
- 
-\subsection{Out-approximation Approach}
+For a general integer programming problem, except for the linear programming, 0-1 quadratic programming problem, etc., the Lagrangian dual problem
+\begin{equation}
+	\max_{\bm{\lambda} \geq 0} d(\bm{\lambda})
+\end{equation}
+has no closed formulation. But for any fixed $\bar{\bm{\lambda}} \geq 0$, we can obtain the value of $\bar{v} = d(\bar{\bm{\lambda}})$. Thus, the following three basic methods can be employed to find the optimal $\bm{\lambda}^*$.
 
-\subsection{Bundle Method}
- 
+\begin{itemize}
+	\item Sub-gradient Search
+	\item Outer-approximation Approach
+	\item Bundle Method
+\end{itemize}
+
+\section{Conclusion}
+
+I learned that the Lagrange relaxation can provide a better lower bound than linear programming relaxation. For the Lagrangian dual problem, we can use the dual search method to solve it. 
+
+Although solving the Lagrangian dual problem may not be able to obtain the optimal solution of the primal problem, or even the feasible solution. However, when using global optimization methods such as branch and bound, to solve integer programming, the dual method can provide a better lower bound.
+
 % \newpage
 % \bibliographystyle{chicago}
 % \bibliography{reference}
