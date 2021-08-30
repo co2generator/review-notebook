@@ -41,10 +41,87 @@
 \maketitle 
 \allowdisplaybreaks[4]
 
-\section{Branch and Bound}
+\section{Some Questions}
 
+\noindent $\bullet$ How to use the Gomory's cutting plane method to solve the following integer programming problem?
+\begin{align}
+	\max \quad & 3x_1 - x_2 \\
+	s.t. \quad & \left\{
+	\begin{aligned}
+		& 3x_1 - 2x_2 \leq 3 \\
+		& 5x_1 + 4x_2 \geq 10 \\
+		& 2x_1 + x_2 \leq 5 \\
+		& x_1, x_2 \in \mathbb{Z}^+
+	\end{aligned}\right.
+\end{align}
+
+\noindent $\bullet$ How to use the branch and bound algorithm to solve the following integer programming problem?
+\begin{align}
+	\max \quad & 2x_1 + x_2 \\
+	s.t. \quad & \left\{
+	\begin{aligned}
+		& x_1 + x_2 \leq 5 \\
+		& -x_1 + x_2 \leq 0 \\
+		& 6x_1 + 2x_2 \leq 21 \\
+		& x_1, x_2 \in \mathbb{Z}^+
+	\end{aligned}\right.
+\end{align}
 
 \section{Cutting Plane}
+
+Consider following integer programming problem,
+\begin{align}
+\label{problem:ip}
+\begin{aligned}
+\min \quad & c^Tx \\
+s.t. \quad & Ax = b \\
+& x \in \mathbb{Z}_+^n
+\end{aligned}
+\end{align}
+And its linear relaxation is,
+\begin{align}
+\label{linear-relaxation}
+\begin{aligned}
+\min \quad & c^Tx \\
+s.t. \quad & Ax = b \\
+& x \in \mathbb{R}_+^n
+\end{aligned}
+\end{align}
+
+\noindent \qquad Suppose the optimal solution obtained by (\ref{linear-relaxation}) is $x^*$ and given an optimal LP basis $B$, problem (\ref{problem:ip}) can be rewrote as,
+\begin{align}
+\min \quad & c_B^T B^{-1} b + \sum_{j \in NB} \bar{c}_jx_j \\
+s.t. \quad & (x_B)_i + \sum_{j \in NB} \bar{a}_{ij}x_j = \bar{b}_i, && i = 1, 2, ..., m \\
+& x_j \in \mathbb{Z}_+^1, && j = 1, 2, ..., n 
+\end{align}
+where $NB$ is the set of nonbasic variables. If $\forall i = 1, 2, ..., m$,  $\bar{b}_i$ is integer, then we obtain the optimal solution. Otherwise, there must be at least one $\bar{b}_i$ is fractional,
+\begin{equation}
+(x_B)_k + \sum_{j \in NB} \bar{a}_{kj}x_j = \bar{b}_k \label{fractional}
+\end{equation}
+
+\noindent \qquad Since $x_j \geq 0$,
+\begin{equation}
+(x_B)_k + \sum_{j \in NB} \lfloor \bar{a}_{kj} \rfloor x_j \leq (x_B)_k + \sum_{j \in NB} \bar{a}_{kj}x_j  = \bar{b}_k
+\end{equation}
+
+\noindent \qquad Since $x_j$ should be integer,
+\begin{equation}
+(x_B)_k + \sum_{j \in NB} \lfloor \bar{a}_{kj} \rfloor x_j \leq \lfloor \bar{b}_k  \rfloor \label{vi}
+\end{equation}
+
+\noindent \qquad Obviously, (\ref{vi}) is a valid inequality. Then, use (\ref{fractional}) and (\ref{vi}), we have
+\begin{equation}
+\sum_{j \in NB} (\bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor) x_j \geq \bar{b}_k -  \lfloor \bar{b}_k  \rfloor \label{sub}
+\end{equation}
+
+\noindent \qquad Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k -  \lfloor \bar{b}_k\rfloor $, then we obtain the famous \textit{Chv\'atal-Gomory Cut},
+\begin{equation}
+\sum_{j \in NB} f_{kj} x_j \geq g_k \label{cg-cut}
+\end{equation}
+
+\noindent \qquad It is interesting. For the optimal solution $x^*$ of linear relaxation, the non-basic variables $x_j$ is zero and can't satisfy inequality (\ref{cg-cut}). Thus, such fractional solution will be cut off.
+
+\section{Branch and Bound}
 
 
 \section{Branch and Cut}
