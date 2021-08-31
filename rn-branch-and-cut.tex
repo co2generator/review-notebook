@@ -67,6 +67,9 @@
 	\end{aligned}\right.
 \end{align}
 
+\noindent $\bullet$ What is branch-and-cut?
+
+\newpage
 \section{Cutting Plane}
 
 Consider following integer programming problem,
@@ -114,16 +117,124 @@ Since $x_j$ should be integer,
 \sum_{j \in NB} (\bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor) x_j \geq \bar{b}_k -  \lfloor \bar{b}_k  \rfloor \label{sub}
 \end{equation}
 
-Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k -  \lfloor \bar{b}_k\rfloor $, then we obtain the famous \textit{Chv\'atal-Gomory Cut},
+Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k -  \lfloor \bar{b}_k\rfloor $, then we obtain the famous \textit{Chv\'atal-Gomory(C-G) Cut},
 \begin{equation}
 -\sum_{j \in NB} f_{kj} x_j \leq -g_k \label{cg-cut}
 \end{equation}
 
  It is interesting. For the optimal solution $x^*$ of linear relaxation, the non-basic variables $x_j$ is zero and can't satisfy inequality (\ref{cg-cut}). Thus, such fractional solution will be cut off.
  
- \begin{remark}
+ \newpage
+ \begin{example}
+ 	For the above integer programming problem (1)-(2), 
+ 	\begin{align*}
+ 	\max \quad & 3x_1 - x_2 \\
+ 	s.t. \quad & \left\{
+ 	\begin{aligned}
+ 	& 3x_1 - 2x_2 \leq 3 \\
+ 	& 5x_1 + 4x_2 \geq 10 \\
+ 	& 2x_1 + x_2 \leq 5 \\
+ 	& x_1, x_2 \in \mathbb{Z}^+
+ 	\end{aligned}\right.
+ 	\end{align*}
+ 	By introducing slack variables $x_3, x_4, x_5$, it can be converted to the following standard LP,
+ 	\begin{align*}
+ 		\max \quad & 3x_1 - x_2 \\
+ 		s.t. \quad & \left\{
+ 		\begin{aligned}
+ 		& 3x_1 - 2x_2 + x_3 = 3 \\
+ 		& 5x_1 + 4x_2 - x_4 = 10 \\
+ 		& 2x_1 + x_2 + x_5 = 5
+ 		\end{aligned}
+ 		\right.
+ 	\end{align*} 
+ 	Since both the left-hand-side(lhs) and $x_1, x_2, x_3$ are integral, the introduced slack variables must be integers. Then we can use the simplex algorithm to solve its linear programming relaxation. And the final optimal simplex tableau is,
+ 		\begin{table}[htbp]
+	 		\centering
+	 		\begin{tabular}{@{}ccccccccc@{}}
+	 			\toprule
+	 			\multicolumn{3}{c}{$c_j$}      & 3       & -1    & 0    & 0    & 0     & \multirow{2}{*}{$\theta$} \\ \cmidrule(r){1-8}
+	 			$\bm{c_B}$     & $\bm{x}_B$     & $\bm{b}$       & $x_1$    & $x_2$ & $x_3$ & $x_4$ & $x_5$  &                        \\ \midrule
+	 			3        & $x_1$     & 13/7      & 1       & 0    & 1/7    & 0    & 2/7     &                       \\
+	 			-1        & $x_2$     & 9/7      & 0        & 1    & -2/7    & 0    & 3/7     &                       \\
+	 			0        & $x_4$     & 31/7       & 0       & 0    & -3/7    & 1    & 22/7     &                       \\ \midrule
+	 			\multicolumn{3}{c}{$c_j-z_j$} & 0       & 0    & -5/7    & 0    & -3/7     &                        \\  \bottomrule
+	 		\end{tabular}%
+ 		\end{table}
+ 
+  	Thus, we can introduce the following C-G cut,
+	 \begin{equation}
+	 -\frac{1}{7}x_3 - \frac{2}{7}x_5 \leq -\frac{6}{7}
+	 \end{equation}
+	 Then we introduce a new slack variable $x_6$ to continue the iteration.
+	 \begin{equation}
+	 -\frac{1}{7}x_3 - \frac{2}{7}x_5 + x_6 = -\frac{6}{7}
+	 \end{equation}
+	 And the simplex tableau is,
+		\begin{table}[htbp]
+		 	\centering
+		 	\begin{tabular}{@{}cccccccccc@{}}
+		 		\toprule
+		 		\multicolumn{3}{c}{$c_j$}      & 3       & -1    & 0    & 0    & 0      &  0 & \multirow{2}{*}{$\theta$} \\ \cmidrule(r){1-9}
+		 		$\bm{c_B}$     & $\bm{x}_B$     & $\bm{b}$       & $x_1$    & $x_2$ & $x_3$ & $x_4$ & $x_5$ & $x_6$ &                        \\ \midrule
+		 		3        & $x_1$     & 13/7      & 1       & 0    & 1/7    & 0    & 2/7     &   0 &                    \\
+		 		-1        & $x_2$     & 9/7      & 0        & 1    & -2/7    & 0    & 3/7     &     0 &                  \\
+		 		0        & $x_4$     & 31/7       & 0       & 0    & -3/7    & 1    & 22/7     &     0 &                  \\ 
+		 		0   & $x_6$      &  -6/7         &   0      &  0    & -1/7    & 0    & -2/7     &   1  &  \\ \midrule
+		 		\multicolumn{3}{c}{$c_j-z_j$} & 0       & 0    & -5/7    & 0    & -3/7   &  0 &                    \\  \bottomrule
+		 	\end{tabular}%
+	 	\end{table}
  	
- \end{remark}
+ 	 Since $x_6 = -\frac{6}{7} \leq 0$ is not a feasible solution, but the dual problem is feasible. Therefore, here we should use dual-simplex method. After several iterations, the optimal simplex tableau is
+ 	 \begin{table}[htbp]
+ 	 	\centering
+ 	 	\begin{tabular}{@{}cccccccccc@{}}
+ 	 		\toprule
+ 	 		\multicolumn{3}{c}{$c_j$}      & 3       & -1    & 0    & 0    & 0      &  0 & \multirow{2}{*}{$\theta$} \\ \cmidrule(r){1-9}
+ 	 		$\bm{c_B}$     & $\bm{x}_B$     & $\bm{b}$       & $x_1$    & $x_2$ & $x_3$ & $x_4$ & $x_5$ & $x_6$ &                        \\ \midrule
+ 	 		3        & $x_1$     & 1      & 1       & 0    & 0   & 0    & 0     &   1 &                    \\
+ 	 		-1        & $x_2$     & 5/4      & 0        & 1    & 0    & -1/4    & 0     &  -5/4  &                  \\
+ 	 		0        & $x_3$     & 5/2       & 0       & 0    & 1    & -1/2    & 0     &  -11/2 &                  \\ 
+ 	 		0   & $x_5$      &  7/4         &   0      &  0    & 0    & 1/4    & 1     &   -3/4  &  \\ \midrule
+ 	 		\multicolumn{3}{c}{$c_j-z_j$} & 0       & 0    & 0    & -1/4    & 0   &  -17/4 &                    \\  \bottomrule
+ 	 	\end{tabular}%
+ 	 \end{table}
+  
+  	\
+  	
+  	\
+  	
+  	We can derive the C-G cut as,
+  	\begin{equation}
+  		-(\frac{1}{4} - 0)x_4 - (-\frac{3}{4} - -1)x_6 \leq -(\frac{7}{4} - 1)
+  	\end{equation}
+  	And introduce the slack variable $x_7$,
+  	\begin{equation}
+  		-\frac{1}{4} x_4 - \frac{1}{4}x_6 + x_7 = -\frac{3}{4}
+  	\end{equation}
+   Then, continue the iteration. Finally, we obtain the optimal simplex tableau,
+   	\begin{table}[htbp]
+	   	\centering
+	   	\begin{tabular}{@{}ccccccccccc@{}}
+	   		\toprule
+	   		\multicolumn{3}{c}{$c_j$}      & 3       & -1    & 0    & 0    & 0      &  0     &  0   & \multirow{2}{*}{$\theta$} \\ \cmidrule(r){1-10}
+	   		$\bm{c_B}$     & $\bm{x}_B$     & $\bm{b}$       & $x_1$    & $x_2$ & $x_3$ & $x_4$ & $x_5$ & $x_6$ &     $x_7$  &           \\ \midrule
+	   		3        & $x_1$     & 1      & 1         & 0      & 0    & 0        & 0     &   1       &      0      &        \\
+	   		-1        & $x_2$     & 2      & 0        & 1      & 0    & 0    & 0     &  -1  &    -1     &         \\
+	   		0        & $x_3$     & 4       & 0       & 0      & 1    & 0    & 0     &  -5   &    -2    &          \\ 
+	   		0       & $x_5$      &  1         &   0   &  0    & 0     & 0    & 1     &   -1   &    1    &    \\
+	   		0       &  $x_4$      &  3       &   0    & 0     &  0    &    1      &   0    &  1     &   -4    &    \\ \midrule
+	   		\multicolumn{3}{c}{$c_j-z_j$} & 0       & 0    & 0    & 0    & 0   &  -4   &     -1    &        \\  \bottomrule
+	   	\end{tabular}%
+   \end{table}
+
+	And the optimal solution is $\bm{x} = (1, 2, 4, 3, 1, 0, 0)^T$.
+\end{example}
+
+
+\begin{remark}
+	We have noticed that, when a new valid inequality is introduced, it is no need to restart the simplex process. The dual-simplex method can be employed to continue the optimization. It is critical important for improving computation efficiency, since it allows for warm start rather than cold start. And the same technique is also used in the branch and bound algorithm. And it is worth mention that, CPLEX/GUROBI use the dual-simplex method to solve the LP relaxation at every nodes of the search tree.
+\end{remark}
 
 
 \newpage
@@ -170,7 +281,15 @@ The optimal solution is $(1, 0.125, 1)$, objective is $11.125$. Thus, \textit{Br
 	\end{algorithmic}  
 \end{algorithm} 
 
+\newpage
 \section{Branch and Cut}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figure/rn-b-a-c-framework}
+	\caption{An illustration for the branch-and-cut framework.}
+	\label{fig:rn-b-a-c-framework}
+\end{figure}
 
 
 \section{Conclusion}
