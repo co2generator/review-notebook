@@ -67,7 +67,7 @@
 	\end{aligned}\right.
 \end{align}
 
-\noindent $\bullet$ What is branch-and-cut?
+\noindent $\bullet$ What is branch-and-cut algorithm?
 
 \newpage
 \section{Cutting Plane}
@@ -233,7 +233,7 @@ Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k - 
 
 
 \begin{remark}
-	We have noticed that, when a new valid inequality is introduced, it is no need to restart the simplex process. The dual-simplex method can be employed to continue the optimization. It is critical important for improving computation efficiency, since it allows for warm start rather than cold start. And the same technique is also used in the branch and bound algorithm. And it is worth mention that, CPLEX/GUROBI use the dual-simplex method to solve the LP relaxation at every nodes of the search tree.
+	We have noticed that, when a new valid inequality is introduced, it is no need to restart the simplex process. The dual-simplex method can be employed to continue the optimization. It is critical important for improving computation efficiency, since it allows for warm start rather than cold start. And the same technique is also used in the branch and bound algorithm. And it is worth mention that, CPLEX/GUROBI by defaults use the dual-simplex method to solve the LP relaxation at every nodes of the search tree.
 \end{remark}
 
 
@@ -269,7 +269,7 @@ The optimal solution is $(1, 0.125, 1)$, objective is $11.125$. Thus, \textit{Br
 
 \noindent The generic branch and bound algorithm can be described as,
 \begin{algorithm}[htbp]
-	\caption{Generic Branch and Bound Algorithm}
+	\caption{Generic Branch and Bound}
 	\label{alg:bb}
 	\begin{algorithmic}[1]
 		\State Set $U = +\infty$ and break the original problem into two subproblems
@@ -284,6 +284,47 @@ The optimal solution is $(1, 0.125, 1)$, objective is $11.125$. Thus, \textit{Br
 \newpage
 \section{Branch and Cut}
 
+The following passage is from \cite{barnhart1998branch}:
+
+\
+
+\textit{The basic idea of branch and cut is simple. Classes of valid inequalities, preferably facets of the convex hull of feasible solutions, are left out of the LP relaxation because there are too many constraints to handle efficiently, and most of them will not be binding in an optimal solution anyway. Then, if an an optimal solution to an LP relaxation is infeasible, a subproblem, called the separation problem, is solved to try to identify violated inequalities in a class. If one or more violated inequalities are found, some are added to the LP to cut off the infeasible solution. Then the LP is re-optimized. Branching occurs when no violated inequalities are found to cut off an infeasible solution. Branch and cut, which is a generalization of branch and bound with LP relaxations, allows separation and cutting to be applied throughout the branch and bound tree.}
+
+\
+
+The algorithm is summarized below.
+
+\begin{algorithm}[htbp]
+	\caption{Generic Branch and Cut}
+	\begin{algorithmic}[1]
+		\State Add the MP to the list of active problems \textbf{L}
+		\State Set $\bm{x}^\star = null $ and $v^* = -\infty$
+		\While {\textbf{L} is not empty}
+		
+		\State Select and remove a problem from \textbf{L}.
+		
+		\State Solve the LP relaxation of the problem.
+		
+		\State If the solution is infeasible, go back to 4. Otherwise, denote the solution by $\bm{x}$ and $v$.
+		
+		\State If $v\geq v^*$, go back to 4.
+		
+		\State If $\bm{x}$ is integer, set $v^\star \leftarrow v, \bm{x}^\star \leftarrow \bm{x}$ and go back to 4.
+		
+		\State If desired, search for violated constraints and add to LP relaxation, then go back to 6.
+		
+		\State Branch on fractional variables and add these problem to \textbf{L}, then go back to 4.
+		
+		\EndWhile
+	\end{algorithmic}
+	\label{alg:bc}
+\end{algorithm}
+
+
+Both CPLEX and GUROBI incorporate the branch-and-cut framework. And by defaults, some famous valid inequalities may added to the model automatically to speed the solution process. And some heuristics may also invoked. Being integrated into branch and cut, in many instances, they can speed the final proof of optimality, or they can provide a suboptimal but high-quality solution in a shorter amount of time than by branching alone. 
+
+We can implement the callbacks provided by CPLEX/GUROBI to customize the above cutting planes or heuristics. And we also can use heuristics to find feasible or infeasible solutions as MIP starts for CPLEX/GUROBI. In some instances, they can help improving the solution speed.
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.7\linewidth]{figure/rn-b-a-c-framework}
@@ -294,8 +335,12 @@ The optimal solution is $(1, 0.125, 1)$, objective is $11.125$. Thus, \textit{Br
 
 \section{Conclusion}
 
+Using dual-simplex method to solve the LP relaxation can help improving the computation efficiency, since it is a warm start. Branch and cut is a generalization of branch and bound. To some extent, it can be viewed as,
+\begin{equation*}
+\textit{Branch and Cut = Branch and Bound + Cutting Plane}
+\end{equation*}
 
-% \newpage
-% \bibliographystyle{chicago}
-% \bibliography{reference}
+ \newpage
+ \bibliographystyle{chicago}
+ \bibliography{./bib/ref.bib}
 \end {document} 
