@@ -55,7 +55,7 @@
 	\end{aligned}\right.
 \end{align}
 
-\noindent $\bullet$ How to use the branch and bound algorithm to solve the following integer programming problem?
+\noindent $\bullet$ How to use the branch and bound method to solve the following integer programming problem?
 \begin{align}
 	\max \quad & 2x_1 + x_2 \\
 	s.t. \quad & \left\{
@@ -88,7 +88,7 @@ s.t. \quad & Ax = b \\
 \end{aligned}
 \end{align}
 
-\noindent \qquad Suppose the optimal solution obtained by (\ref{linear-relaxation}) is $x^*$ and given an optimal LP basis $B$, problem (\ref{problem:ip}) can be rewrote as,
+Suppose the optimal solution obtained by (\ref{linear-relaxation}) is $x^*$ and given an optimal LP basis $B$, problem (\ref{problem:ip}) can be rewrote as,
 \begin{align}
 \min \quad & c_B^T B^{-1} b + \sum_{j \in NB} \bar{c}_jx_j \\
 s.t. \quad & (x_B)_i + \sum_{j \in NB} \bar{a}_{ij}x_j = \bar{b}_i, && i = 1, 2, ..., m \\
@@ -99,30 +99,76 @@ where $NB$ is the set of nonbasic variables. If $\forall i = 1, 2, ..., m$,  $\b
 (x_B)_k + \sum_{j \in NB} \bar{a}_{kj}x_j = \bar{b}_k \label{fractional}
 \end{equation}
 
-\noindent \qquad Since $x_j \geq 0$,
+ Since $x_j \geq 0$,
 \begin{equation}
 (x_B)_k + \sum_{j \in NB} \lfloor \bar{a}_{kj} \rfloor x_j \leq (x_B)_k + \sum_{j \in NB} \bar{a}_{kj}x_j  = \bar{b}_k
 \end{equation}
 
-\noindent \qquad Since $x_j$ should be integer,
+Since $x_j$ should be integer,
 \begin{equation}
 (x_B)_k + \sum_{j \in NB} \lfloor \bar{a}_{kj} \rfloor x_j \leq \lfloor \bar{b}_k  \rfloor \label{vi}
 \end{equation}
 
-\noindent \qquad Obviously, (\ref{vi}) is a valid inequality. Then, use (\ref{fractional}) and (\ref{vi}), we have
+ Obviously, (\ref{vi}) is a valid inequality. Then, use (\ref{fractional}) and (\ref{vi}), we have
 \begin{equation}
 \sum_{j \in NB} (\bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor) x_j \geq \bar{b}_k -  \lfloor \bar{b}_k  \rfloor \label{sub}
 \end{equation}
 
-\noindent \qquad Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k -  \lfloor \bar{b}_k\rfloor $, then we obtain the famous \textit{Chv\'atal-Gomory Cut},
+Let $f_{kj} = \bar{a}_{kj} - \lfloor \bar{a}_{kj} \rfloor$, $g_k =  \bar{b}_k -  \lfloor \bar{b}_k\rfloor $, then we obtain the famous \textit{Chv\'atal-Gomory Cut},
 \begin{equation}
-\sum_{j \in NB} f_{kj} x_j \geq g_k \label{cg-cut}
+-\sum_{j \in NB} f_{kj} x_j \leq -g_k \label{cg-cut}
 \end{equation}
 
-\noindent \qquad It is interesting. For the optimal solution $x^*$ of linear relaxation, the non-basic variables $x_j$ is zero and can't satisfy inequality (\ref{cg-cut}). Thus, such fractional solution will be cut off.
+ It is interesting. For the optimal solution $x^*$ of linear relaxation, the non-basic variables $x_j$ is zero and can't satisfy inequality (\ref{cg-cut}). Thus, such fractional solution will be cut off.
+ 
+ \begin{remark}
+ 	
+ \end{remark}
 
+
+\newpage
 \section{Branch and Bound}
 
+Take the following problem as an example,
+\begin{align}
+\min \quad & 4x_1 + 9x_2 + 6x_3 \\
+s.t. \quad & 5x_1 + 8x_2 + 6x_3 \geq 12 \\
+& x_1, x_2, x_3 \in \left\{0, 1\right\}
+\end{align}
+The optimal solution is $(1, 1, 0)$, objective is $13$. And its linear relaxation,
+\begin{align}
+\min \quad  4x_1 + 9x_2 + 6x_3 \qquad\qquad  \\
+s.t. \quad \left\{
+\begin{aligned}
+& \quad 5x_1 + 8x_2 + 6x_3 \geq 12 \\
+& \quad 0 \leq x_1 \leq 1 \\
+& \quad 0 \leq x_2 \leq 1 \\
+& \quad 0 \leq x_3 \leq 1 \\
+& \quad x_1, x_2, x_3 \in \mathbb{R}
+\end{aligned} \right.
+\end{align}
+The optimal solution is $(1, 0.125, 1)$, objective is $11.125$. Thus, \textit{Branch and Bound} can be illustrated as,
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\linewidth]{./figure/rn-b-a-c-tree.png}
+	\caption{Search Tree of Above Problem}
+	\label{fig:bb}
+\end{figure}
+
+\noindent The generic branch and bound algorithm can be described as,
+\begin{algorithm}[htbp]
+	\caption{Generic Branch and Bound Algorithm}
+	\label{alg:bb}
+	\begin{algorithmic}[1]
+		\State Set $U = +\infty$ and break the original problem into two subproblems
+		\State Select an active subproblem
+		\State If the subproblem is infeasible, delete it; otherwise, compute $b(F)$ for the corresponding subproblem as a lower bound.
+		\State If $b(F) \geq U$, delete the subproblem
+		\State If $b(F) < U$, either obtain an optimal solution to subproblem, or break the corresponding subproblem into further subproblems, which are added to the list of active subproblems
+		\State Repeat 2$\sim$5, until there is no active subproblem.
+	\end{algorithmic}  
+\end{algorithm} 
 
 \section{Branch and Cut}
 
