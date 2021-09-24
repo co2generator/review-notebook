@@ -1,0 +1,178 @@
+\documentclass{article}
+\pagestyle{plain}
+\setlength\textwidth{266.0pt}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[paperwidth=185mm,paperheight=260mm,text={148mm,220mm},left=21mm,top=25.5mm]{geometry}
+\usepackage[round]{natbib}
+\usepackage{booktabs}
+\usepackage{algorithm,algpseudocode,amsmath}
+\usepackage[colorlinks,linkcolor=blue,anchorcolor=blue,citecolor=blue]{hyperref}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{tikz}  
+\usepackage{pdflscape}
+ \newtheorem{thm}{Theorem}
+\newtheorem{pro}{Proposition}
+\newtheorem{lem}{Lemma}
+\newtheorem{alg}{Algorithm}
+\newtheorem{ass}{Assumption}
+\newtheorem{coro}{Corollary}
+\newtheorem{defin}{Definition}
+\newtheorem{ob}{Observation}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+%\newtheorem{proof}{Proof}
+\usetikzlibrary{arrows,shapes,chains}  
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm  
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm  
+\title {Review Notebook: Nonlinear Optimization Basics}
+\author{CO2GENERATOR} 
+\begin {document}
+\maketitle 
+\allowdisplaybreaks[4]
+
+\section{Extremum Point of Multivariate Function}
+
+For a second order differentiable univariate function $f(x)$, the conditions for the existence of extremum points are,
+\begin{itemize}
+	\item \textbf{Necessary Condition}
+	\begin{equation}
+		f'(x) = 0
+	\end{equation}
+	\item \textbf{Sufficient Condition}
+	\begin{align}
+		f''(x) > 0 \ \textit{(local minima)} \\
+		f''(x) < 0 \ \textit{(local maxima)}
+	\end{align}
+\end{itemize}
+
+Similarly, for a second order differentiable multivariate function $f(\bm{x})$, the conditions for the existence of extremum points are,
+\begin{itemize}
+	\item \textbf{Necessary Condition}
+	\begin{equation}
+		\nabla f(\bm{x}) = 0
+	\end{equation}
+	\item \textbf{Sufficient Condition}
+	\begin{align}
+		\nabla^2 f(\bm{x}) \succ 0 \ \textit{local minima} \\
+		\nabla^2 f(\bm{x}) \prec 0 \ \textit{local maxima}
+	\end{align}
+\end{itemize}
+
+In summary, for a second order differentiable function $f(\bm{x})$, the conditions for the existence of local minima(maxima) are the gradient $\nabla f(\bm{x})$ equals to $\bm{0}$ and the Hessian matrix $\nabla^2 f(\bm{x})$ is positive(negative) definite. 
+
+\section{Convex Function}
+
+In addition to using the definition to determine whether a function is convex, we can also use the following two necessary and sufficient conditions:
+
+\begin{itemize}
+	\item \textbf{First Order Condition}: Assume $\mathbb{R}_c$ is a open convex set on Euclidean space $E_n$, and $f(\bm{x})$ is differentiable. For any two points $\bm{x}_1 \in \mathbb{R}_c$ and $\bm{x}_2 \in \mathbb{R}_c$
+	\begin{equation}
+		f(\bm{x_2}) \geq f(\bm{x_1}) + \nabla f(\bm{x}_1)^T(\bm{x}_2 - \bm{x}_1) 
+	\end{equation}
+	Then $f(\bm{x})$ is a convex function. And if
+	 \begin{equation}
+	 f(\bm{x_2}) > f(\bm{x_1}) + \nabla f(\bm{x}_1)^T(\bm{x}_2 - \bm{x}_1) 
+	 \end{equation}
+	 Then $f(\bm{x})$ is a strictly convex function.
+	 
+	 \item \textbf{Second Order Condition}: Assume $\mathbb{R}_c$ is a open convex set on Euclidean space $E_n$, and $f(\bm{x})$ is second order differentiable, if its Hessian matrix is semi positive definite
+	 \begin{equation}
+	 \nabla^2 f(\bm{x}) \succeq 0
+	 \end{equation}
+	 then $f(\bm{x})$ is a convex function. And if
+	 \begin{equation}
+	 \nabla^2 f(\bm{x}) \succ 0
+	 \end{equation}
+	 then $f(\bm{x})$ is a strictly convex function.
+\end{itemize}
+
+\section{Karush-Kuhn-Tucker Conditions}
+
+Consider the following nonlinear optimization problem,
+\begin{align*}
+	\textit{(NLP)}\min \quad & f(\bm{x}) \\
+	s.t. \quad & g_i(\bm{x}) \leq 0, \forall i = 1, ..., m \\
+	& h_j(\bm{x}) = 0, \forall i = 1, ..., p 
+\end{align*}
+in which $f(\bm{x}), g(\bm{x})$ and $h(\bm{x})$ are differentiable,  the functions $g(\bm{x})$ and $h(\bm{x})$ are assumed to satisfy certain \textit{regularity conditions} also known as \textit{constraint qualifications} (e.g. the functions $g(\bm{x})$ and $h(\bm{x})$ should be affine functions). 
+
+\
+
+The Lagrange function is,
+\begin{equation}
+	\mathcal{L}(\bm{x}, \bm{\lambda}, \bm{\mu}) = f(\bm{x}) + \bm{\lambda}^T g(\bm{x}) + \bm{\mu}^Th(\bm{x}) 
+\end{equation}
+
+The Lagrangian dual function is,
+\begin{equation}
+	d(\bm{\lambda}, \bm{\mu}) = \inf_{\bm{x}} \mathcal{L}(\bm{x}, \bm{\lambda}, \bm{\mu})
+\end{equation}
+
+The the Lagrangian dual problem is,
+\begin{equation}
+	\max_{\bm{\lambda}, \bm{\mu}} d(\bm{\lambda}, \bm{\mu})
+\end{equation}
+
+The Karush-Kuhn-Tucker conditions can be described as:
+
+\begin{itemize}
+	\item \textbf{Stationarity}
+	\begin{equation}
+		\nabla f(\bm{x}) + \bm{\lambda}^Tg(\bm{x}) + \bm{\mu}^T h(\bm{x}) = \bm{0}
+	\end{equation}
+	\item \textbf{Primal Feasibility}
+	\begin{equation}
+		g(\bm{x}) \leq \bm{0}, 		h(\bm{x}) = \bm{0}
+	\end{equation}
+	\item \textbf{Dual Feasibility}
+	\begin{equation}
+		\bm{\lambda} \geq \bm{0}
+	\end{equation}
+	\item \textbf{Complementary Slackness}
+	\begin{equation}
+		\bm{\lambda}^T g(\bm{x}) = \bm{0}
+	\end{equation}
+\end{itemize}
+
+KKT conditions are necessary conditions for optimality. If $f(\bm{x})$ is a convex function, and constraint functions $g(\bm{x})$ and $h(\bm{x})$ satisfies Slater's condition, then strong duality holds, KKT conditions are sufficient and necessary.
+
+\section{Conclusion}
+
+For unconstrained convex minimization problem, in a few special cases, we can find a solution through analytically solving the optimality equation($\nabla f(\bm{x}) = \bm{0}$), but usually the problem must be solved by an iterative algorithm, such as \textit{Newton's method, gradient descent method, steepest descent method.} (In Prof. Stephen Boyd's book, this last two algorithms are distinguished.  But in many other places, they are confused.) 
+
+For solving constrained convex minimization problem, one famous interior point method is \textit{barrier method}. Interior point methods solve the KKT conditions by applying Newton's method to a sequence of equality constrained problems, or to a sequence of modified versions of the KKT conditions.
+
+The following paragraph is from \cite{boyd2004convex},
+
+\
+
+\textit{We can view interior-point methods as another level in the hierarchy of convex optimization algorithms.
+\begin{itemize}
+	\item Linear equality constrained quadratic problems are the simplest. For these problems the KKT conditions are a set of linear equations, which can be solved analytically.
+	\item Newton’s method is the next level in the hierarchy. We can think of Newton’s method as a technique for solving a linear equality constrained optimization problem, with twice differentiable objective, by reducing it to a sequence of linear equality constrained quadratic problems.
+	\item Interior-point methods form the next level in the hierarchy: They solve an optimization problem with linear equality and inequality constraints by reducing it to a sequence of linear equality constrained problems.
+\end{itemize}
+}
+
+I have a feeling that convex optimization algorithms mainly revolve around how to numerically solve KKT conditions equations. But I am not sure if it is right. Besides, I also realized that for Nonlinear Optimization, although in many situations we can ask solver package for help, there's a lot to learn.
+
+
+\
+
+\noindent P.S. \quad As once the king of Machine Learning, support vector machine, its most basic version is solved by Lagrange duality and KKT conditions. 
+
+\newpage
+\bibliographystyle{chicago}
+\bibliography{ref.bib}
+\end {document} 
